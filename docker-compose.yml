@@ -1,0 +1,57 @@
+services:
+
+  postgres:
+    image: postgres:14-alpine
+    container_name: ${PROJECT_NAME}-postgres
+
+    volumes:
+      - ./data/db/postgres:/var/lib/postgresql/data
+      - ./docker/pgsql/init.sql:/docker-entrypoint-initdb.d/0-schema.sql
+      - ./logs/pgsql:/var/log/postgresql
+    environment:
+      - TZ=Europe/Moscow
+      - PGTZ=Europe/Moscow
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    ports:
+      - "5544:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    networks:
+      testproject:
+    restart: always
+
+  webserver:
+    image: nginx:alpine
+    container_name: ${PROJECT_NAME}-webserver
+    working_dir: /application
+    volumes:
+      - ./application:/application
+      - ./docker/nginx:/etc/nginx/conf.d
+      - ./logs/nginx:/var/log/nginx
+    ports:
+      - "8282:80"
+    networks:
+      testproject:
+    restart: always
+
+  php-fpm:
+    build: docker/php-fpm
+    container_name: ${PROJECT_NAME}-php-fpm
+    working_dir: /application
+    volumes:
+      - ./application:/application
+      - ./docker/php-fpm/php-ini-overrides.ini:/etc/php/8.2/cli/conf.d/99-overrides.ini
+      - ./docker/php-fpm/php-ini-overrides.ini:/etc/php/8.2/fpm/conf.d/99-overrides.ini
+    networks:
+      testproject:
+    restart: always
+
+networks:
+  testproject:
+    ipam:
+      driver: default
