@@ -21,8 +21,8 @@ return new class extends Migration {
                 $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()'));
                 $table->string('name')->unique();
                 $table->string('description');
-                $table->foreignUuid('type_id')->constrained('habit_types');
-                $table->foreignUuid('notification_id')->constrained('habit_notifications');
+                $table->foreignUuid('user_id')->constrained('users');
+                $table->foreignUuid('habit_type_id')->constrained('habit_types');
                 $table->integer('target');
                 $table->timestamps();
             });
