@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\Auth\LoginController;
 use App\Http\Controllers\API\Habit\HabitCreateController;
 use App\Http\Controllers\API\Habit\HabitDeleteController;
+use App\Http\Controllers\API\Habit\HabitStatisticController;
 use App\Http\Controllers\API\Habit\HabitUpdateController;
 use App\Http\Controllers\API\ProgressMark\ProgressMarkCreateController;
 use App\Http\Controllers\API\Register\RegisterController;
@@ -24,6 +25,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         Route::prefix('/{habit}')->name('habit.')->group(function () {
             Route::put('/', HabitUpdateController::class)->name('update');
+            Route::get('/', HabitStatisticController::class)->name('statistic');
         });
     });
 
