@@ -50,16 +50,14 @@ RUN docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql;
 # Copy configuration file
 COPY ./php-ini-overrides.ini /usr/local/etc/php/conf.d/uploads.ini
 
-#COPY ./cron/daily-alerts /etc/cron.d/daily-alerts
-#RUN /usr/bin/chmod 0644 /etc/cron.d/daily-alerts
-#RUN /usr/bin/crontab /etc/cron.d/daily-alerts
-#RUN touch /var/log/cron.log
-#
-#COPY ./supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY ./cron/daily-alerts /etc/cron.d/daily-alerts
+RUN /usr/bin/chmod 0644 /etc/cron.d/daily-alerts
+RUN /usr/bin/crontab /etc/cron.d/daily-alerts
+RUN touch /var/log/cron.log
 
-#COPY ./start.sh /usr/local/bin/start.sh
-
-#RUN chmod +x /usr/local/bin/start.sh
+COPY ./supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY ./start.sh /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/start.sh
 
 RUN chown -R ${USERNAME}:${USERNAME} /application && \
     usermod -u $HOST_UID ${USERNAME} && \
@@ -70,4 +68,4 @@ RUN curl -s http://getcomposer.org/installer | php && \
     echo "export PATH=${PATH}:/var/www/html/vendor/bin" >> ~/.bashrc && \
     mv composer.phar /usr/local/bin/composer
 
-#ENTRYPOINT ["/usr/local/bin/start.sh"] \
+ENTRYPOINT ["/usr/local/bin/start.sh"] \
