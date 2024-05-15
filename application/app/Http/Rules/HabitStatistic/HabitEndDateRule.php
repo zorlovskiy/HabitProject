@@ -24,20 +24,10 @@ class HabitEndDateRule implements ValidationRule
         $habit = Habit::query()
             ->find($this->userId);
 
-        $endDate = $this->endDate(habit: $habit);
+        $endDate = $habit->endDate();
 
         if ($endDate < $carbonValue) {
             $fail(trans('statistic.incorrect-end-date'));
         }
-    }
-
-    public function endDate(Habit $habit): Carbon
-    {
-        /** @var Carbon $endDate */
-        $target = $habit->target;
-
-        $endDate = $habit->created_at->startOfDay()->addDays($target);
-
-        return $endDate;
     }
 }

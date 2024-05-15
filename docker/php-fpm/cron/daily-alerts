@@ -1,0 +1,1 @@
+40 09 */1 * * cd /application && /usr/local/bin/php artisan schedule:run >> /application/cron 2>&1
