@@ -40,11 +40,8 @@ class Habit extends Model
 
     public function endDate(): Carbon
     {
-        /** @var Carbon $endDate */
         $target = $this->target;
 
-        $endDate = $this->created_at->startOfDay()->addDays($target);
-
-        return $endDate;
+        return $this->created_at->startOfDay()->addDays($target);;
     }
 }
