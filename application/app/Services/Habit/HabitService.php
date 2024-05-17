@@ -7,6 +7,7 @@ use App\Models\HabitType;
 use App\Models\ProgressMark;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class HabitService implements HabitServiceInterface
@@ -17,12 +18,16 @@ class HabitService implements HabitServiceInterface
         $habit = null;
 
         try {
+            DB::transaction(function () use (&$habit, &$user, $data) {
 
-            $habit = Habit::query()->create([
-                ...$data,
-                'user_id' => $user->id,
-                'habit_type_id' => HabitType::query()->where('name', $data['type'])->first()->id
-            ]);
+                $habitTypeId = HabitType::query()->where('name', $data['type'])->first()->id;
+
+                $habit = Habit::query()->create([
+                    ...$data,
+                    'user_id' => $user->id,
+                    'habit_type_id' => $habitTypeId
+                ]);
+            });
 
         } catch (\Exception $e) {
             Log::error($e->getMessage());
@@ -50,15 +55,16 @@ class HabitService implements HabitServiceInterface
     {
         $result = null;
 
-        foreach ($habits as $habit) {
-           $result += Habit::query()->where('id', $habit)->delete();
-        }
+        $result = Habit::query()->whereIn('id', $habits)->delete();
+        //foreach ($habits as $habit) {
+        //   //$result += Habit::query()->where('id', $habit)->delete();
+        //}
+//
+        //if ($result === 0) {
+        //    return false;
+        //}
 
-        if ($result === 0) {
-            return false;
-        }
-
-        return true;
+        return $result;
     }
 
     public function statisticByPeriod(Habit $habit, array $data): array
